@@ -3,10 +3,25 @@ import dotenv from "dotenv";
 import { createClient } from "@libsql/client";
 import apiRoutes from "./api/v1/routes.js";
 import mongoose from "mongoose";
+import helmet from "helmet";
+import cors from "cors";
+import limiter from "./middleware/rateLimiter.js";
 
 dotenv.config();
 
 const app = express();
+
+app.set("trust proxy",1);
+
+// Global middlewares
+app.use(helmet());
+const corsOptions = {
+  origin: ["http://localhost:5173"],// your front-end domain
+  credentials: true,// allow cookies to be sent
+};
+
+app.use(cors(corsOptions));
+app.use(limiter);
 
 const PORT = process.env.PORT;
 
