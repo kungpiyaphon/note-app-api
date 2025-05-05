@@ -20,7 +20,7 @@ app.set("trust proxy", 1);
 // Global middlewares
 app.use(helmet());
 const corsOptions = {
-  origin: ["http://localhost:5173"], // your front-end domain
+  origin: ["http://localhost:5173","https://my-note-app-frontend.vercel.app"], // your front-end domain
   credentials: true, // allow cookies to be sent
 };
 
