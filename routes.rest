@@ -1,0 +1,20 @@
+### Create a new user
+POST http://localhost:3030/users
+Content-Type: application/json
+
+{
+    "name": "Kung",
+    "email": "kung@example.com"
+}
+
+### Create a note for a user
+POST http://localhost:3030/notes
+Content-Type: application/json
+
+{
+    "title": "Another Note",
+    "content": "I want NodeJS!",
+    "tags":["person", "draft"],
+    "is_pinned": true,
+    "user_id": 2
+}

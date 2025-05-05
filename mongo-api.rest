@@ -1,0 +1,67 @@
+### Get all users
+GET http://localhost:3030/mongo/users
+
+### Create a new user
+POST http://localhost:3030/mongo/users
+Content-Type: application/json
+
+{
+    "name": "Test Person",
+    "username": "cbf", 
+    "password": "123456",
+    "email": "testperson6@example.com"
+}
+
+### Get all notes
+GET http://localhost:3030/mongo/notes
+
+
+### Create a notes
+POST  http://localhost:3030/mongo/notes
+Content-Type: application/json
+
+{
+    "title": "Test Person",
+    "content":"testperson@example.com",
+    "tags":["notejs","express"],
+    "isPinned": false,
+    "userId": "6809c2e3219573041246170f"
+}
+
+### Register a new user
+POST http://localhost:3030/mongo/auth/register
+Content-Type: application/json
+
+{
+    "fullName": "Funny Guy",
+    "email": "funny.guy@example.com",
+    "password": "funny123"
+}
+
+### Login with the registered user
+POST http://localhost:3030/mongo/auth/login
+Content-Type: application/json
+
+{
+    "email": "funny.guy@example.com",
+    "password": "funny123"
+}
+
+### Add a new note (protected route)
+POST http://localhost:3030/mongo/add-note
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
+
+{
+    "title": "Funny's notes thailand",
+    "content": "This is a funny note.",
+    "tags": ["important", "yesterday"]
+}
+
+### Get all notes for the login user
+GET http://localhost:3030/mongo/get-all-notes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
+
+### Search notes
+GET http://localhost:3030/mongo/search-notes?query=thailand
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
