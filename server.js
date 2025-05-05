@@ -9,7 +9,7 @@ import limiter from "./middleware/rateLimiter.js";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middleware/errorHandler.js";
 import { connectMongo } from "./config/mongo.js";
-import { connectTurso } from "./config/turso.js";
+import { connectTurso, db } from "./config/turso.js";
 
 dotenv.config();
 
