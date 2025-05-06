@@ -43,14 +43,14 @@ POST http://localhost:3030/mongo/auth/login
 Content-Type: application/json
 
 {
-    "email": "funny.guy@example.com",
-    "password": "funny123"
+    "email": "admin@domain.com",
+    "password": "123456"
 }
 
 ### Add a new note (protected route)
 POST http://localhost:3030/mongo/add-note
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MDY2MTIsImV4cCI6MTc0NjUxMDIxMn0.c1v-Vq4zt94w8sBPUCBo5h1ci4b9JjDZ4EGbeNVXkqQ
 
 {
     "title": "Funny's notes thailand",
@@ -60,8 +60,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiM
 
 ### Get all notes for the login user
 GET http://localhost:3030/mongo/get-all-notes
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MDY2MTIsImV4cCI6MTc0NjUxMDIxMn0.c1v-Vq4zt94w8sBPUCBo5h1ci4b9JjDZ4EGbeNVXkqQ
 
 ### Search notes
 GET http://localhost:3030/mongo/search-notes?query=thailand
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
+
+### User route - Get User Profile 
+GET http://localhost:3030/mongo/auth/profile 
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MjYzMzgsImV4cCI6MTc0NjUyOTkzOH0.HmYB81ZLw8AXykpvsGBogODNazobuLeW6ACy2sO_7gs

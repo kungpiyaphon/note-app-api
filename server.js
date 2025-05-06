@@ -1,8 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { createClient } from "@libsql/client";
 import apiRoutes from "./api/v1/routes.js";
-import mongoose from "mongoose";
 import helmet from "helmet";
 import cors from "cors";
 import limiter from "./middleware/rateLimiter.js";
