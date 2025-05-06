@@ -4,10 +4,8 @@ import noteRoutes from "./turso/notes.js";
 import mongoUsers from "./mongo/users.js";
 import mongoNotes from "./mongo/notes.js";
 
-
-const router = express.Router();
-
 export default (db) => {
+    const router = express.Router();
     router.use(userRoutes(db));
     router.use(noteRoutes(db));
     router.use("/mongo", mongoUsers);

@@ -47,7 +47,7 @@ router.post("/auth/register", async (req, res) => {
   }
 });
 
-// Login a user
+// Login a user - jwt signed token
 router.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {

@@ -1,71 +1,74 @@
-### Get all users
+### Admin User Route - Get all users
 GET http://localhost:3030/mongo/users
 
-### Create a new user
+### Admin User - Get all notes
+GET http://localhost:3030/mongo/notes
+
+### Admin User - Create a new user
 POST http://localhost:3030/mongo/users
 Content-Type: application/json
 
 {
-    "name": "Test Person",
-    "username": "cbf", 
-    "password": "123456",
-    "email": "testperson6@example.com"
+  "fullName": "Betty",
+  "email": "betty@example.com"
 }
 
-### Get all notes
-GET http://localhost:3030/mongo/notes
-
-
-### Create a notes
-POST  http://localhost:3030/mongo/notes
+### Admin route - Create a new note (basic)
+POST http://localhost:3030/mongo/notes
 Content-Type: application/json
 
 {
-    "title": "Test Person",
-    "content":"testperson@example.com",
-    "tags":["notejs","express"],
-    "isPinned": false,
-    "userId": "6809c2e3219573041246170f"
+  "title": "My New Note 1234!!!",
+  "content": "This is the content of my new note 1234!!!.",
+  "tags": ["personal","todo"],
+  "isPinned": false, 
+  "userId": "667d791cd788728b158a7dd0"
 }
 
-### Register a new user
+### User route - Create a new note (protected route)
+POST http://localhost:3030/mongo/add-note
+Content-Type: application/json
+Authorization: Bearer 
+
+{
+  "title": "New note added by login user 3",
+  "content": "This note was added via a protected route.",
+  "tags": ["personal", "important"]
+}
+
+### User route - Register a new user
 POST http://localhost:3030/mongo/auth/register
 Content-Type: application/json
 
 {
-    "fullName": "Funny Guy",
-    "email": "funny.guy@example.com",
-    "password": "funny123"
+  "fullName": "John Doe 2",
+  "email": "johndoe2@example.com",
+  "password": "securePassword123"
 }
 
-### Login with the registered user
+### User route - Login with the registered user
 POST http://localhost:3030/mongo/auth/login
 Content-Type: application/json
 
 {
-    "email": "admin@domain.com",
-    "password": "123456"
+  "email": "soy.su@example.com",
+  "password": "soySu123"
 }
 
-### Add a new note (protected route)
-POST http://localhost:3030/mongo/add-note
+### User route - Get User Profile
+GET http://localhost:3030/mongo/auth/profile
+Cookie: accessToken=
+
+
+### User route - Login with the registered user
+POST http://localhost:3030/mongo/auth/cookie/login
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MDY2MTIsImV4cCI6MTc0NjUxMDIxMn0.c1v-Vq4zt94w8sBPUCBo5h1ci4b9JjDZ4EGbeNVXkqQ
 
 {
-    "title": "Funny's notes thailand",
-    "content": "This is a funny note.",
-    "tags": ["important", "yesterday"]
+  "email": "johndoe@example.com",
+  "password": "securePassword123"
 }
 
-### Get all notes for the login user
-GET http://localhost:3030/mongo/get-all-notes
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MDY2MTIsImV4cCI6MTc0NjUxMDIxMn0.c1v-Vq4zt94w8sBPUCBo5h1ci4b9JjDZ4EGbeNVXkqQ
-
-### Search notes
-GET http://localhost:3030/mongo/search-notes?query=thailand
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODBiMzkyNDkzN2IwNDk4ZGMxMDAxMzkiLCJpYXQiOjE3NDU1Njg0NTUsImV4cCI6MTc0NTU3MjA1NX0.SmafxrxJ3fqbjU9-0uloAdMtxi4tpWTdaLECqxgg3Cw
-
-### User route - Get User Profile 
-GET http://localhost:3030/mongo/auth/profile 
-Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODE5ODYyZWFiMzQwMTMzNWVmN2M1ZWEiLCJpYXQiOjE3NDY1MjYzMzgsImV4cCI6MTc0NjUyOTkzOH0.HmYB81ZLw8AXykpvsGBogODNazobuLeW6ACy2sO_7gs
+### Test route - Verify the token (replace <TOKEN> with the token from the login response)
+GET http://localhost:3030/mongo/auth/verify
+Authorization: Bearer 

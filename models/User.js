@@ -3,14 +3,14 @@ import bcrypt from "bcrypt";
 
 // Create MongoDB document schema
 const UserSchema = new Schema({
-  name: { type: String },
+  fullName: { type: String },
+  email: { type: String, unique: true, required: true },
   password: { type: String, require: true },
-  email: { type: String },
   createdOn: { type: Date, default: new Date().getTime() },
 });
 
 // Hash password before saving
-UserSchema.pre("save",async function(next) {
+UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   // Salt
   this.password = await bcrypt.hash(this.password, 10);

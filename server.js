@@ -26,6 +26,7 @@ app.use(cors(corsOptions));
 app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
+// Centralized routes
 app.use("/", apiRoutes(db));
 app.get("/", (req, res) => {
   res.send(`
@@ -99,7 +100,7 @@ p {
 // Centralized error handling
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Initialize the tables (users, notes)
 (async () => {
