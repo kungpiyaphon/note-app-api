@@ -273,13 +273,11 @@ router.get("/auth/me", (req, res) => {
 router.post("/auth/microsoft/signup", async (req, res) => {
   const { accessToken } = req.body;
   try {
-    console.log(`Received access token: ${accessToken}`);
     const graphRes = await axios.get("https://graph.microsoft.com/v1.0/me", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log(`Graph API response: ${graphRes.data}`);
     const { displayName, userPrincipalName, id, tenantId } = graphRes.data;
     let user = await User.findOne({ email: userPrincipalName });
     if (!user) {
@@ -310,6 +308,75 @@ router.post("/auth/microsoft/signup", async (req, res) => {
       error: true,
       message: "Microsoft signup failed",
       details: err.response?.data || err.message || err,
+    });
+  }
+});
+
+router.post("/auth/cookie/microsoft/signin", async (req, res) => {
+  const { accessToken } = req.body;
+  if (!accessToken) {
+    return res.status(400).json({
+      error: true,
+      message: "Access token is required",
+    });
+  }
+  try {
+    const graphRes = await axios.get("https://graph.microsoft.com/v1.0/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const { id, mail, userPrincipalName, displayName } = graphRes.data;
+    const email = mail || userPrincipalName;
+    const allowedDomain = process.env.ALLOWED_DOMAIN;
+    if (!email.endsWith(`@${allowedDomain}`)){
+      return res.status(403).json({
+        error: true,
+        message: "Not a company email"
+      });
+    };
+
+    let user = await User.findOne({ email });
+    let newUser = false;
+    if(!user) {
+      user = await User.create({
+        email,
+        fullName: displayName,
+        provider:"microsoft",
+      });
+      newUser = true;
+    }
+
+    const token = jwt.sign({userId: user._id},process.env.JWT_SECRET,{
+      expiresIn: "1h",
+    });
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      error: false,
+      message: "Login with Microsoft successful",
+      user: {
+        _id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+      newUser,
+    });
+  } catch (err) {
+    console.error("Microsoft login error: ", err.response?.data || err.message);
+    res.status(500).json({
+      error: true,
+      message: "Failed to loin Microsoft",
+      details: err.message,
     });
   }
 });
