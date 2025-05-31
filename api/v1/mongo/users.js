@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../../../models/User.js";
 import { createUser, getAllUsers } from "./controllers/usersController.js";
 import { authUser } from "../../../middleware/auth.js";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -269,4 +270,47 @@ router.get("/auth/me", (req, res) => {
   res.json({ user: req.user });
 });
 
+router.post("/auth/microsoft/signup", async (req, res) => {
+  const { accessToken } = req.body;
+  try {
+    console.log(`Received access token: ${accessToken}`);
+    const graphRes = await axios.get("https://graph.microsoft.com/v1.0/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log(`Graph API response: ${graphRes.data}`);
+    const { displayName, userPrincipalName, id, tenantId } = graphRes.data;
+    let user = await User.findOne({ email: userPrincipalName });
+    if (!user) {
+      user = await User.create({
+        fullName: displayName,
+        email: userPrincipalName,
+        microsoftId: id,
+        tenantId,
+        authProvider: "microsoft",
+      });
+      return res.status(201).json({
+        error: false,
+        newUser: true,
+        fullName: user.fullName,
+        message: "User created successfully!",
+      });
+    } else {
+      return res.status(200).json({
+        error: false,
+        newUser: false,
+        fullName: user.fullName,
+        message: "User already registered.",
+      });
+    }
+  } catch (err) {
+    console.error("Signup error: ", err.response?.data || err.message || err);
+    return res.status(500).json({
+      error: true,
+      message: "Microsoft signup failed",
+      details: err.response?.data || err.message || err,
+    });
+  }
+});
 export default router;

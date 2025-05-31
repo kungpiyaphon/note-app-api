@@ -5,13 +5,16 @@ import bcrypt from "bcrypt";
 const UserSchema = new Schema({
   fullName: { type: String },
   email: { type: String, unique: true, required: true },
-  password: { type: String, require: true },
-  createdOn: { type: Date, default: new Date().getTime() },
+  password: { type: String },
+  microsoftId: { type: String },
+  tenantId: { type: String },
+  authProvider: { type: String, enum:["local", "microsoft"],default: "local" },
+  createdOn: { type: Date, default: Date.now },
 });
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.password || !this.isModified("password")) return next();
   // Salt
   this.password = await bcrypt.hash(this.password, 10);
   next();
