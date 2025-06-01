@@ -9,6 +9,7 @@ const UserSchema = new Schema({
   microsoftId: { type: String },
   tenantId: { type: String },
   authProvider: { type: String, enum:["local", "microsoft"],default: "local" },
+  emailVerified: { type: Boolean, default: false },
   createdOn: { type: Date, default: Date.now },
 });
 

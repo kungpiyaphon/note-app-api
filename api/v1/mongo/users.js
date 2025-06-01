@@ -8,13 +8,13 @@ import axios from "axios";
 
 const router = express.Router();
 
-// Get all users
+// Get all users for admin
 router.get("/users", getAllUsers);
 
-// Create a user
+// Create a user for admin
 router.post("/users", createUser);
 
-// Register a new user
+// Register a new user with manual
 router.post("/auth/register", async (req, res) => {
   const { fullName, email, password } = req.body;
   if (!fullName || !email || !password) {
@@ -25,6 +25,14 @@ router.post("/auth/register", async (req, res) => {
   }
   try {
     const existingUser = await User.findOne({ email });
+    const allowedDomains = process.env.ALLOWED_DOMAINS.split(",");
+    const domain = email.split("@")[1];
+    if (!allowedDomains.includes(domain)) {
+      return res.status(403).json({ 
+        error: true, 
+        message: "Email domain not allowed" 
+      });
+    }
     if (existingUser) {
       return res.status(409).json({
         error: true,
@@ -43,51 +51,6 @@ router.post("/auth/register", async (req, res) => {
     return res.status(500).json({
       error: true,
       message: "Sever error",
-      details: err.message,
-    });
-  }
-});
-
-// Login a user - jwt signed token
-router.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({
-      error: true,
-      message: "Email and password are required.",
-    });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({
-        error: true,
-        message: "Invalid credentials",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        error: true,
-        message: "Invalid credentials",
-      });
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return res.json({
-      error: false,
-      token,
-      message: "Login successful!",
-    });
-  } catch (err) {
-    return res.status(500).json({
-      error: true,
-      message: "Server error",
       details: err.message,
     });
   }
@@ -126,19 +89,12 @@ router.post("/auth/cookie/login", async (req, res) => {
     const isProd = process.env.NODE_ENV === "production";
 
     // Set token in HttpOnly cookie
-    // res.cookie("accessToken", token, {
-    //   httpOnly: true,
-    //   secure: false,
-    //   sameSite: "Strict", // helps prevent CSRF
-    //   path: "/",
-    //   maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
-    // });
     res.cookie("accessToken", token, {
       httpOnly: true,
       secure: isProd, // only send over HTTPS in prod
-      sameSite: isProd ? "none" : "lax",
+      sameSite: isProd ? "none" : "lax", //helps prevent CSRF
       path: "/",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
     });
 
     res.status(200).json({
@@ -178,98 +134,7 @@ router.post("/auth/logout", (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
-// Verify token
-router.get("/auth/verify", (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: true, message: "Token is required" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({
-      error: false,
-      userId: decoded.userId,
-      message: "Token is valid",
-    });
-  } catch (err) {
-    res.status(401).json({ error: true, message: "Invalid token" });
-  }
-});
-
-// ❌ Use after implementing auth
-// Create User account
-router.post("/create-account", async (req, res) => {
-  const { fullName, email, password } = req.body;
-
-  if (!fullName) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Full Name is required" });
-  }
-
-  if (!email) {
-    return res.status(400).json({ error: true, message: "Email is required" });
-  }
-
-  if (!password) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Password is required" });
-  }
-
-  const isUser = await User.findOne({ email: email });
-
-  if (isUser) {
-    return res.json({
-      error: true,
-      message: "User already exist",
-    });
-  }
-
-  const user = new User({
-    fullName,
-    email,
-    password,
-  });
-
-  await user.save();
-
-  const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "36000m",
-  });
-
-  return res.json({
-    error: false,
-    user,
-    accessToken,
-    message: "Registration Successful",
-  });
-});
-
-//Get User
-router.get("/get-user", async (req, res) => {
-  const { user } = req.user;
-
-  const isUser = await User.findOne({ _id: user._id });
-
-  if (!isUser) {
-    return res.sendStatus(401);
-  }
-
-  return res.json({
-    user: isUser,
-    message: "",
-  });
-});
-
-router.get("/auth/me", (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
-  res.json({ user: req.user });
-});
-
+// sign up with microsoft entra
 router.post("/auth/microsoft/signup", async (req, res) => {
   const { accessToken } = req.body;
   try {
@@ -312,6 +177,7 @@ router.post("/auth/microsoft/signup", async (req, res) => {
   }
 });
 
+// sign in with microsoft entra
 router.post("/auth/cookie/microsoft/signin", async (req, res) => {
   const { accessToken } = req.body;
   if (!accessToken) {
@@ -326,28 +192,33 @@ router.post("/auth/cookie/microsoft/signin", async (req, res) => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    const { id, mail, userPrincipalName, displayName } = graphRes.data;
+    const allowedDomains = process.env.ALLOWED_DOMAINS.split(",").map((d) =>
+      d.trim()
+    );
+
+    const { mail, userPrincipalName, displayName } = graphRes.data;
     const email = mail || userPrincipalName;
-    const allowedDomain = process.env.ALLOWED_DOMAIN;
-    if (!email.endsWith(`@${allowedDomain}`)){
+    const domain = email.split("@")[1];
+
+    if (!allowedDomains.includes(domain)) {
       return res.status(403).json({
         error: true,
-        message: "Not a company email"
+        message: "Unauthorized account",
       });
-    };
+    }
 
     let user = await User.findOne({ email });
     let newUser = false;
-    if(!user) {
+    if (!user) {
       user = await User.create({
         email,
         fullName: displayName,
-        provider:"microsoft",
+        provider: "microsoft",
       });
       newUser = true;
     }
 
-    const token = jwt.sign({userId: user._id},process.env.JWT_SECRET,{
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
